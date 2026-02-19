@@ -6,7 +6,9 @@
   "timeout_minutes": 10,
   "max_iterations": 1,
   "status_update_interval_minutes": 5,
+  "enable_agent_reconfig": false,
   "composition": {
-    "code-agent": 3
+    "code-agent": 2,
+    "grok-4-full": 1
   }
 }

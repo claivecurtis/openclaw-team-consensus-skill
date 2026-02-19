@@ -107,9 +107,28 @@ The skill uses a config.json file for default settings, but when invoked, dynami
 - timeout_minutes: Timeout for sub-agent responses (default: 5)
 - max_iterations: Maximum review iterations if consensus fails (default: 1)
 - status_update_interval: Interval in minutes for periodic status updates during skill use (default: 5)
-- agent_composition: Dictionary specifying the number of each agent type (e.g., {"code-agent": 2, "other-agent": 1}) (default: {"code-agent": 3})
+- enable_agent_reconfig: Enable reconfiguring agent efficiency during the process (default: false)
+- agent_composition: Dictionary specifying the number of each agent type (e.g., {"code-agent": 2, "other-agent": 1}) (default: {"code-agent": 2, "grok-4-full": 1})
 
 Users can provide personalized overrides during prompting to tailor the process.
+
+## Setup Agent Efficiency Cron
+
+To maintain optimal agent performance, set up a periodic cron job for agent efficiency review. This cron will spawn a Team skill session to review and update the AGENTS.md table with current efficiency metrics, best uses, and notes.
+
+### Steps to Setup:
+1. Use the `openclaw cron add` command to create a recurring job:
+   - Name: "agent-efficiency-review"
+   - Schedule: Weekly (e.g., every Sunday at 9 AM)
+   - Payload: Run Team skill to review agents and update AGENTS.md table
+   - Announce to primary channels
+
+Example command:
+```
+openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "grok-4-full" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
+```
+
+This ensures the AGENTS.md table remains current with agent efficiency data.
 
 ## Sub-Agent Composition
 
@@ -225,6 +244,11 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 
 ### Version 1.9 (2026-02-19)
 - Implemented proper versioning and changelog management: Renamed init_skill.py to update_skill.py, added logic to auto-increment version, append new changelog entry with date and summary without altering previous entries. Updated SKILL.md to reference the new script. This fixes overwriting, same version numbers, and merging issues by enforcing append-only history.
+
+### Version 2.0 (2026-02-19)
+- Preconfigured team composition from AGENTS.md table: Set default composition to code-agent heavy (2) and grok-4-full (1) for consensus.
+- Added skill prompt reconfig options: Introduced enable_agent_reconfig config option to allow reconfiguring agent efficiency during processes.
+- Added public section 'Setup Agent Efficiency Cron': Describes setup of periodic cron for agent efficiency review, updating AGENTS.md table using Team skill.
 ## Files
 
 - SKILL.md: This documentation
