@@ -111,9 +111,39 @@ The skill uses a config.json file for default settings, but when invoked, dynami
 
 Users can provide personalized overrides during prompting to tailor the process.
 
+## Setup Agent Efficiency Cron
+
+To maintain optimal agent performance, set up a periodic cron job for agent efficiency review. This cron will spawn a Team skill session to review and update the AGENTS.md table with current efficiency metrics, best uses, and notes.
+
+### Steps to Setup:
+1. Use the `openclaw cron add` command to create a recurring job:
+   - Name: "agent-efficiency-review"
+   - Schedule: Weekly (e.g., every Sunday at 9 AM)
+   - Payload: Run Team skill to review agents and update AGENTS.md table
+   - Announce to primary channels
+
+Example command:
+```
+openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "code-agent" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
+```
+
+This ensures the AGENTS.md table remains current with agent efficiency data.
+
 ## Sub-Agent Composition
 
 When using the skill, the agent pulls the list of available agents using the `agents_list` tool and displays them with their default models (queried via `session_status`). The user can specify the composition by assigning numbers to each agent type, e.g., 2 code-agent, 1 other-agent. The total should not exceed max_reviewers.
+
+Refer to AGENTS.md efficiency table for suggestions on best agents for consensus tasks.
+
+### Example Agent Efficiency Table
+
+| Agent/Skill       | Model/Alias          | Best For                          | Efficiency Notes                      |
+|-------------------|----------------------|-----------------------------------|---------------------------------------|
+| grok-fast-reason | xai/grok-4-1-fast   | General reasoning/chat           | Default: Fast, low tokens            |
+| code-agent        | (coding specialist) | Code/shell/CLI tasks             | Code opt: Precise scripting/PRs      |
+| gem3-flash        | google/gemini-1.5-flash | Quick/light tasks            | Flash speed, low cost                |
+| grok-4-full       | xai/grok-4          | Heavy analysis/complex           | Full cap: High think, higher cost    |
+| Team skill        | Multi-agent (workspace/skills/openclaw-team-consensus-skill) | Consensus/meetings/reviews | Low-conf/critical: Spawn agents (e.g., code + grok-4) |
 
 ## Usage
 
@@ -225,6 +255,18 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 
 ### Version 1.9 (2026-02-19)
 - Implemented proper versioning and changelog management: Renamed init_skill.py to update_skill.py, added logic to auto-increment version, append new changelog entry with date and summary without altering previous entries. Updated SKILL.md to reference the new script. This fixes overwriting, same version numbers, and merging issues by enforcing append-only history.
+
+### Version 2.0 (2026-02-19)
+- Added best practices files: LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, .github templates
+- Preconfigured team composition from AGENTS.md table: Set default composition to code-agent heavy for consensus.
+- Added skill prompt reconfig options: Introduced enable_agent_reconfig config option to allow reconfiguring agent efficiency during processes.
+- Added public section 'Setup Agent Efficiency Cron': Describes setup of periodic cron for agent efficiency review, updating AGENTS.md table using Team skill.
+
+### Version 2.1 (2026-02-19)
+- Removed hardcoded agent compositions; default to generic code-agent only to avoid user-specific hardcodes.
+- Updated agent efficiency cron to use generic code-agent instead of specific models.
+- Added reference to AGENTS.md efficiency table for agent selection suggestions.
+- Sanitized for general users by removing personalized agent references.
 ## Files
 
 - SKILL.md: This documentation
