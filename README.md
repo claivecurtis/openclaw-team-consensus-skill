@@ -1,0 +1,1 @@
+# Claw Team Skill\n\nMulti-agent consensus for reviews/tasks.\n\n## Quick Start\n\n- Prompt \"use team skill to review X\".\n- Config: Reviewers (3), timeout 5min, etc.\n- Auto cron status, spawn, feedback, vote, fixes.\n\n## Features\n- State/resume/notify timeouts.\n- Mixed agents (code/grok).\n- Notes/logs exported.\n\nSee SKILL.md full.

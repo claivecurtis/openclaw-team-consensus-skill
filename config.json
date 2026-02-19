@@ -1,0 +1,12 @@
+{
+  "num_reviewers": 3,
+  "enable_discussion": true,
+  "voting_threshold": 0.7,
+  "max_reviewers": 5,
+  "timeout_minutes": 10,
+  "max_iterations": 1,
+  "status_update_interval_minutes": 5,
+  "composition": {
+    "code-agent": 3
+  }
+}
