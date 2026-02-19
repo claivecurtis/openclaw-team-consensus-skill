@@ -135,6 +135,16 @@ When using the skill, the agent pulls the list of available agents using the `ag
 
 Refer to AGENTS.md efficiency table for suggestions on best agents for consensus tasks.
 
+### Example Agent Efficiency Table
+
+| Agent/Skill       | Model/Alias          | Best For                          | Efficiency Notes                      |
+|-------------------|----------------------|-----------------------------------|---------------------------------------|
+| grok-fast-reason | xai/grok-4-1-fast   | General reasoning/chat           | Default: Fast, low tokens            |
+| code-agent        | (coding specialist) | Code/shell/CLI tasks             | Code opt: Precise scripting/PRs      |
+| gem3-flash        | google/gemini-1.5-flash | Quick/light tasks            | Flash speed, low cost                |
+| grok-4-full       | xai/grok-4          | Heavy analysis/complex           | Full cap: High think, higher cost    |
+| Team skill        | Multi-agent (workspace/skills/openclaw-team-consensus-skill) | Consensus/meetings/reviews | Low-conf/critical: Spawn agents (e.g., code + grok-4) |
+
 ## Usage
 
 1. Run `python3 skills/Team/update_skill.py [optional summary]` to update the config and append a new version to the changelog.
