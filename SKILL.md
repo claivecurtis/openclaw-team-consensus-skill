@@ -274,3 +274,5 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 - update_skill.py: Update script to manage config and changelog
 
 - config.json: Configuration file
+### Version 2.3 (2026-02-19)
+- **Fix parallel post-consensus duplicates**: Consensus → \`subagents kill all\`; **lead agent single-exec ONLY** (no team duplicates GH PR/issue/actions).
