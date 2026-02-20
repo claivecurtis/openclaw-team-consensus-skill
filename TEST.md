@@ -18,9 +18,9 @@ Keywords: code/Python → code-agent prio.
 Approved.
 
 ### 3. Mock Reviewers (no spawn)
-- code-agent1: \"Add types/docstring.\"
+- code-agent1 *(or equiv.): \"Add types/docstring.\"
 - code-agent2: \"Solid, edge cases?\"
-- grok-fast-reason: \"Types + tests.\"
+- general-agent *(or equiv.): \"Types + tests.\"
 
 ### 4. Discussion Synth
 \"Consensus: Type hints/docstring; no bugs.\"
