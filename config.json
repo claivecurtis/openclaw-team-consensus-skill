@@ -10,5 +10,6 @@
     "code-agent": 3
   },
   "enable_agent_reconfig": true,
-  "auto_select_team": true
+  "auto_select_team": true,
+  "test_mode": false
 }
