@@ -79,6 +79,11 @@ End
 
 ## Workflow
 
+### Guards
+- **Interactive Context Required for Prompting**: Prompting for config and confirmation must occur in user-facing sessions (e.g., main chat). In non-interactive sub-agent or automated contexts, use auto_select_team defaults and skip manual overrides to avoid hanging.
+- **Test Mode Guard**: If test_mode enabled, simulate entire workflow with mock data, log to TEST.md, and skip all real spawns/cron to prevent costs/resource use.
+- **Consensus Threshold Guard**: Do not proceed to voting if fewer than 2 reviewers provide feedback; fallback to single reviewer approval.
+
 1. **Prep (Test Mode Check)**: If test_mode true, skip cron/spawns, sim full flow (mock data), log trace to output/TEST.md style. Else normal.: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
 
 2. **Prompt for All Configuration**: Present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
@@ -191,6 +196,16 @@ Refer to AGENTS.md efficiency table for suggestions on best agents for consensus
 - Spawns voters: All approve → Consensus reached.
 - Removes cron.
 
+**Example Prompt Sequence (Interactive)**:
+- Agent: "Team skill invoked. Current config: num_reviewers=3, enable_discussion=true, voting_threshold=0.7. Task analysis: Code task. Auto-proposed team: {'code-agent': 2, 'grok-fast-reason': 1}. Override? (yes/no/custom)"
+- User: "Change to 4 reviewers, no discussion."
+- Agent: "Updated: num_reviewers=4, enable_discussion=false. Confirm to proceed? (yes/no)"
+- User: "yes"
+- Proceed to spawning.
+
+**Guard Example (Non-Interactive)**:
+- In sub-agent context: Skip prompts, use auto_select_team=true, proceed with defaults or auto-proposal, log "Non-interactive: using auto-config".
+
 ## Error Handling
 
 - If `agents_list` returns no agents, fallback to the default 'code-agent'.
@@ -299,6 +314,9 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 
 ### Version 2.5 (2026-02-20)
 - Added test_mode config + TEST.md: dry-run workflow sim for testing/demos (no costs)
+
+### Version 2.6 (2026-02-20)
+- Added guards for interactive contexts, improved examples with prompt sequences, clarified non-interactive fallback.
 ## Files
 
 - SKILL.md: This documentation
