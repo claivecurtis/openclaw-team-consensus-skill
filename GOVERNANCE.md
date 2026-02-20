@@ -1,0 +1,1 @@
+# Governance\n\nThis project follows a Benevolent Dictator for Life (BDFL) model, where the lead maintainer (Claive Curtis) has final decision-making authority. Contributions are encouraged and merit-based roles may be granted to active contributors.\n\nFor more details, see https://opensource.guide/leadership-and-governance/.
