@@ -9,6 +9,8 @@ This script performs the following:
 
 # Update Team skill config and changelog with backups & semantic versioning
 
+# Update Team skill config and changelog with backups & semantic versioning
+
 import json
 import os
 import sys
@@ -21,14 +23,14 @@ skill_path = os.path.join(os.path.dirname(__file__), 'SKILL.md')
 
 # Default config
 config = {
-    "num_reviewers": 3,
-    "enable_discussion": True,
-    "voting_threshold": 0.7,
-    "max_reviewers": 5,
-    "timeout_minutes": 10,
-    "max_iterations": 1,
-    "status_update_interval_minutes": 5,
-    "composition": {"code-agent": 3}
+    \"num_reviewers\": 3,
+    \"enable_discussion\": True,
+    \"voting_threshold\": 0.7,
+    \"max_reviewers\": 5,
+    \"timeout_minutes\": 10,
+    \"max_iterations\": 1,
+    \"status_update_interval_minutes\": 5,
+    \"composition\": {\"code-agent\": 3}
 }
 
 # Backup existing config if present
@@ -59,11 +61,19 @@ with open(skill_path, 'r') as f:
     content = f.read()
 
 # Extract versions
-version_pattern = r'### Version (\d+(?:\.\d+)*) \(\d{4}-\d{2}-\d{2}\)'
+<<<<<<< HEAD
+version_pattern = r'### Version (\\d+(?:\\.\\d+)*) \\(\\d{{4}}-\\d{{2}}-\\d{{2}}\\)'
 matches = re.findall(version_pattern, content)
 
 def parse_version(v):
-    """Parse v1.2 → (1,2,0), pad to major.minor.patch"""
+    \"\"\"Parse v1.2 → (1,2,0), pad to major.minor.patch\"\"\"
+=======
+version_pattern = r'### Version (\\d+(?:\\.\\d+)*) \\(\\d{{4}}-\\d{{2}}-\\d{{2}}\\)'
+matches = re.findall(version_pattern, content)
+
+def parse_version(v):
+    \"\"\"Parse v1.2 → (1,2,0), pad to major.minor.patch\"\"\"
+>>>>>>> origin/main
 
     parts = [int(p) for p in v.split('.') if p.strip()]
     parts += [0] * (3 - len(parts))
