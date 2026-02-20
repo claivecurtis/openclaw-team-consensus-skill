@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+"""
+Script to update the Team consensus skill configuration and changelog.
+
+This script performs the following:
+- Updates config.json with default settings, preserving user changes.
+- Increments the version in SKILL.md and adds a new changelog entry.
+"""
+
+# Update Team skill config and changelog with backups & semantic versioning
 
 # Update Team skill config and changelog with backups & semantic versioning
 
@@ -52,11 +61,19 @@ with open(skill_path, 'r') as f:
     content = f.read()
 
 # Extract versions
+<<<<<<< HEAD
 version_pattern = r'### Version (\\d+(?:\\.\\d+)*) \\(\\d{{4}}-\\d{{2}}-\\d{{2}}\\)'
 matches = re.findall(version_pattern, content)
 
 def parse_version(v):
     \"\"\"Parse v1.2 → (1,2,0), pad to major.minor.patch\"\"\"
+=======
+version_pattern = r'### Version (\\d+(?:\\.\\d+)*) \\(\\d{{4}}-\\d{{2}}-\\d{{2}}\\)'
+matches = re.findall(version_pattern, content)
+
+def parse_version(v):
+    \"\"\"Parse v1.2 → (1,2,0), pad to major.minor.patch\"\"\"
+>>>>>>> origin/main
 
     parts = [int(p) for p in v.split('.') if p.strip()]
     parts += [0] * (3 - len(parts))
