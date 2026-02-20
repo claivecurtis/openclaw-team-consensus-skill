@@ -118,7 +118,7 @@ The skill uses a config.json file for default settings, but when invoked, dynami
 - test_mode: Simulate full workflow (mock responses, no subagents/cron/costs; outputs trace like TEST.md) (default: false)
 
 Users can provide personalized overrides during prompting to tailor the process.
-* If test_mode, skip spawns/cron; generate/log mock flow per TEST.md example.
+* If test_mode, skip spawns/cron; generate/log mock flow per TEST.md (generic for your agents_list/AGENTS.md).
 
 ## Setup Agent Efficiency Cron
 
