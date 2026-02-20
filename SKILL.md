@@ -171,6 +171,12 @@ Refer to AGENTS.md efficiency table for suggestions on best agents for consensus
 
 2. To use the skill, the agent follows the workflow steps: sets up cron for status updates, prompts all config options with confirmation, allows specifying agent composition, spawns reviewers per composition, collects feedback, handles discussion/voting, and removes cron at end.
 
+## Invocation Policy
+
+- Explicit "team" / "assemble the team" → Load/follow this SKILL.md workflow.
+
+- Routine: Optimal subs per AGENTS.md table.
+
 ## Examples
 
 **Sample Scenario: Reviewing a Code Snippet**
