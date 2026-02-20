@@ -25,4 +25,4 @@ Prompt: \"Use Team skill to review [code/PR/task]\"
 
 **Full docs**: [SKILL.md](SKILL.md)
 
-**Contribute**: CONTRIBUTING.md
+**Contribute**: CONTRIBUTING.mdInstalled. Lint: OK. Formatted.
