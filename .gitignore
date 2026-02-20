@@ -1,0 +1,1 @@
+# Python\n__pycache__/\n*.py[cod]\n*.pyc\n\n# Logs and temps\n*.log\ntemp/\n\n# Env\n.env\nconfig.local.json

@@ -1,82 +1,93 @@
 #!/usr/bin/env python3
 
+# Update Team skill config and changelog with backups & semantic versioning
+
 import json
 import os
 import sys
 import datetime
 import re
-
-# Update Team skill config and changelog
+import shutil
 
 config_path = os.path.join(os.path.dirname(__file__), 'config.json')
 skill_path = os.path.join(os.path.dirname(__file__), 'SKILL.md')
 
+# Default config
 config = {
-    "num_reviewers": 3,
-    "enable_discussion": True,
-    "voting_threshold": 0.7,
-    "max_reviewers": 5,
-    "timeout_minutes": 10,
-    "max_iterations": 1,
-    "status_update_interval_minutes": 5,
-    "composition": {"code-agent": 3}
+    \"num_reviewers\": 3,
+    \"enable_discussion\": True,
+    \"voting_threshold\": 0.7,
+    \"max_reviewers\": 5,
+    \"timeout_minutes\": 10,
+    \"max_iterations\": 1,
+    \"status_update_interval_minutes\": 5,
+    \"composition\": {\"code-agent\": 3}
 }
 
-# Check if config exists and preserve user changes if present
+# Backup existing config if present
 if os.path.exists(config_path):
+    backup_path = config_path + '.bak'
+    shutil.copy2(config_path, backup_path)
+    print(f'Backup created: {backup_path}')
+    
     try:
         with open(config_path, 'r') as f:
             existing_config = json.load(f)
-        # Merge existing with defaults, preferring existing
+        # Merge defaults with existing (existing wins)
         config.update(existing_config)
-        print("Existing config preserved and updated with new defaults.")
+        print('Existing config merged with defaults.')
     except json.JSONDecodeError:
-        print("Warning: Existing config.json is invalid. Overwriting with defaults.")
+        print('Invalid config.json. Using backup/defaults.')
     except Exception as e:
-        print(f"Warning: Error reading config.json: {e}. Overwriting with defaults.")
+        print(f'Config read error: {e}. Using backup/defaults.')
 
-# Write the config
+# Write updated config
 with open(config_path, 'w') as f:
     json.dump(config, f, indent=2)
 
-print("Team skill updated successfully. Config saved to config.json.")
+print('Config saved: config.json')
 
-# Update SKILL.md changelog
+# Update changelog in SKILL.md
 with open(skill_path, 'r') as f:
     content = f.read()
 
-# Find last version
-matches = re.findall(r'### Version (\d+\.\d+) \(\d{4}-\d{2}-\d{2}\)', content)
-if matches:
-    last_version = max(float(v) for v in matches)
-    major = int(last_version)
-    minor = int(round((last_version - major) * 10))
-    new_minor = minor + 1
-    new_version = f"{major}.{new_minor}"
-else:
-    new_version = "1.0"
+# Extract versions
+version_pattern = r'### Version (\\d+(?:\\.\\d+)*) \\(\\d{{4}}-\\d{{2}}-\\d{{2}}\\)'
+matches = re.findall(version_pattern, content)
 
-# Current date
+def parse_version(v):
+    \"\"\"Parse v1.2 → (1,2,0), pad to major.minor.patch\"\"\"
+
+    parts = [int(p) for p in v.split('.') if p.strip()]
+    parts += [0] * (3 - len(parts))
+    return tuple(parts[:3])
+
+if matches:
+    last_v_str = max(matches, key=parse_version)
+    major, minor, patch = parse_version(last_v_str)
+    # Increment patch; roll to minor if patch == 9 (rare)
+    if patch < 9:
+        new_version = f'{major}.{minor}.{patch + 1}'
+    else:
+        new_version = f'{major}.{minor + 1}.0'
+else:
+    new_version = '1.0.0'
+
 today = datetime.date.today().isoformat()
 
-# Summary
-if len(sys.argv) > 1:
-    summary = ' '.join(sys.argv[1:])
-else:
-    summary = "Routine config update"
+# Summary from args or default
+summary = ' '.join(sys.argv[1:]) if len(sys.argv) > 1 else 'Auto skill update'
 
-# New entry
-new_entry = f"\n### Version {new_version} ({today})\n- {summary}\n"
+new_entry = f'\n### Version {new_version} ({today})\n- {summary}\n'
 
-# Find position to insert: before ## Files
+# Insert before '## Files'
 files_pos = content.find('## Files')
 if files_pos != -1:
     content = content[:files_pos] + new_entry + content[files_pos:]
 else:
     content += new_entry
 
-# Write back
 with open(skill_path, 'w') as f:
     f.write(content)
 
-print(f"Updated SKILL.md to version {new_version} with summary: {summary}")
+print(f'SKILL.md → v{new_version}: {summary}')
