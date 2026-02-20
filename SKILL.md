@@ -79,7 +79,7 @@ End
 
 ## Workflow
 
-1. **Set up Cron for Status Updates**: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
+1. **Prep (Test Mode Check)**: If test_mode true, skip cron/spawns, sim full flow (mock data), log trace to output/TEST.md style. Else normal.: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
 
 2. **Prompt for All Configuration**: Present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
 
@@ -115,8 +115,10 @@ The skill uses a config.json file for default settings, but when invoked, dynami
 - status_update_interval: Interval in minutes for periodic status updates during skill use (default: 5)
 - agent_composition: Dictionary specifying the number of each agent type (e.g., {"code-agent": 2, "grok-fast-reason": 1}) (auto-proposed; fallback default: {"code-agent": 3}; user override)
 - auto_select_team: Enable automatic task analysis and proposal (default: true)
+- test_mode: Simulate full workflow (mock responses, no subagents/cron/costs; outputs trace like TEST.md) (default: false)
 
 Users can provide personalized overrides during prompting to tailor the process.
+* If test_mode, skip spawns/cron; generate/log mock flow per TEST.md example.
 
 ## Setup Agent Efficiency Cron
 
@@ -288,6 +290,9 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 
 ### Version 2.4 (2026-02-20)
 - Added auto_select_team config and enable_agent_reconfig for dynamic team adjustments
+
+### Version 2.5 (2026-02-20)
+- Added test_mode config + TEST.md: dry-run workflow sim for testing/demos (no costs)
 ## Files
 
 - SKILL.md: This documentation
