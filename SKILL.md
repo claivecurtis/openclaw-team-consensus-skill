@@ -274,5 +274,11 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 - update_skill.py: Update script to manage config and changelog
 
 - config.json: Configuration file
+<<<<<<< HEAD
 ### Version 2.3 (2026-02-19)
 - **Fix parallel post-consensus duplicates**: Consensus → \`subagents kill all\`; **lead agent single-exec ONLY** (no team duplicates GH PR/issue/actions).
+=======
+
+### Version 2.2 (2026-02-19)
+- Robust cron/subagent cleanup: On end/error/timeout/abort, always `subagents action=list` + `kill` lingering; `cron action=list | grep 'team-status'` + `remove <id>` by ID/name pattern. Prevents orphans (e.g., Team skill abrupt end).
+>>>>>>> main

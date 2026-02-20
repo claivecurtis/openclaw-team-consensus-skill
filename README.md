@@ -1,1 +1,28 @@
-# Claw Team Skill\n\nMulti-agent consensus for reviews/tasks.\n\n## Quick Start\n\n- Prompt \"use team skill to review X\".\n- Config: Reviewers (3), timeout 5min, etc.\n- Auto cron status, spawn, feedback, vote, fixes.\n\n## Features\n- State/resume/notify timeouts.\n- Mixed agents (code/grok).\n- Notes/logs exported.\n\nSee SKILL.md full.
+# Claw Team Skill 🗡️
+
+Spawn **multi-agent team** for consensus on reviews/tasks/code/PRs.
+
+**GH**: [claivecurtis/openclaw-team-consensus-skill](https://github.com/claivecurtis/openclaw-team-consensus-skill)
+
+## Quick Start
+
+Prompt: \"Use Team skill to review [code/PR/task]\"
+
+**Auto**:
+- Config (reviewers 3, timeout 5min).
+- Status cron (5min).
+- Spawn mixed agents (code-heavy).
+- Feedback/discuss/vote/consensus.
+- Lead fixes/actions.
+
+## Features
+
+- **Async/parallel**: Push-based, robust timeouts/cleanup.
+- **Agents**: code-agent/grok (configurable).
+- **Consensus**: Vote threshold, partial OK.
+- **Export**: Logs/metrics Markdown.
+- **Robust**: Kill crons/subs, no orphans/duplicates.
+
+**Full docs**: [SKILL.md](SKILL.md)
+
+**Contribute**: CONTRIBUTING.md
