@@ -180,7 +180,7 @@ Refer to AGENTS.md efficiency table for suggestions on best agents for consensus
 
 - Explicit "team" / "assemble the team" → Load/follow this SKILL.md workflow.
 
-- Routine: Optimal subs per AGENTS.md table.
+- Routine/Implicit Consensus: For consensus tasks without explicit "team" mention (e.g., "review this code", "validate output"), use the full Team skill workflow (no sub-spawn of team agents—team only): Load `workspace/skills/openclaw-team-consensus-skill/SKILL.md`, follow precisely, with auto defaults in non-interactive contexts.
 
 ## Examples
 
