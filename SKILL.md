@@ -317,6 +317,13 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 
 ### Version 2.6 (2026-02-20)
 - Added guards for interactive contexts, improved examples with prompt sequences, clarified non-interactive fallback.
+
+### Version 2.7 (2026-02-22)
+- Synced agents efficiency table from AGENTS.md, added proxmox and user agents.
+- Updated dynamic composition to read AGENTS.md efficiency table instead of agents_list tool.
+- Emphasized research via tools for agent qualities.
+- Added spawning priority and rule from AGENTS.md.
+
 ## Files
 
 - SKILL.md: This documentation
