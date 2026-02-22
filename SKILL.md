@@ -86,9 +86,9 @@ End
 
 1. **Prep (Test Mode Check)**: If test_mode true, skip cron/spawns, sim full flow (mock data), log trace to output/TEST.md style. Else normal.: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
 
-2. **Prompt for All Configuration**: Present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
+2. **Prompt for All Configuration**: First, list available agents from `agents_list` tool and AGENTS.md efficiency table. Then present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
 
-3. **Analyze Task and Propose Agent Composition**: Analyze the task/prompt using AGENTS.md efficiency table:
+3. **Analyze Task and Propose Agent Composition**: Analyze the task/prompt using AGENTS.md efficiency table and research agents/qualities via tools (e.g., web_search for "best AI models for [task type]" to gather current capabilities and efficiencies):
 - Code/shell/CLI/git/PR: prioritize code-agent
 - General reasoning: grok-fast-reason
 - Quick/light: gem3-flash
@@ -110,7 +110,7 @@ Propose dict summing to num_reviewers (e.g., {"code-agent":2, "grok-fast-reason"
 
 ## Configuration
 
-The skill uses a config.json file for default settings, but when invoked, dynamically presents all options on-demand and requires user confirmation before forming the team:
+The skill uses a config.json file for default settings, but when invoked, first lists available agents from `agents_list` tool and AGENTS.md efficiency table, then dynamically presents all options on-demand and requires user confirmation before forming the team:
 
 - num_reviewers: Number of reviewer sub-agents (default: 3, max: 5)
 - enable_discussion: Enable discussion synthesis phase (default: true)
@@ -146,7 +146,7 @@ This ensures the AGENTS.md table remains current with agent efficiency data.
 ## Sub-Agent Composition
 
 ### Auto-Selection Logic
-Classify task keywords and propose balanced team:
+Research agents/qualities via tools (e.g., web_search for current AI model capabilities, efficiencies, and best uses for the task type). Classify task keywords and propose balanced team:
 - **Code/CLI/shell/git/PRs**: code-agent primary (2/3), grok-fast-reason support
 - **General/chat**: grok-fast-reason primary, gem3-flash for speed
 - **Quick/light**: gem3-flash all or primary
