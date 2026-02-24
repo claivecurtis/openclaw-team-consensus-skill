@@ -29,9 +29,23 @@ config = {
     "max_reviewers": 5,
     "timeout_minutes": 10,
     "max_iterations": 1,
-    "status_update_interval_minutes": 5,
+    "status_update_interval": 5,
     "composition": {"code-agent": 3},
 }
+
+def validate_config(c):
+    if not isinstance(c.get("num_reviewers", 3), int) or not 1 <= c.get("num_reviewers", 3) <= c.get("max_reviewers", 5):
+        raise ValueError("num_reviewers must be int 1-5")
+    if not isinstance(c.get("voting_threshold", 0.7), float) or not 0 <= c.get("voting_threshold", 0.7) <= 1:
+        raise ValueError("voting_threshold must be float 0-1")
+    if not isinstance(c.get("timeout_minutes", 10), int) or c.get("timeout_minutes", 10) < 1:
+        raise ValueError("timeout_minutes must be int >=1")
+    if not isinstance(c.get("max_iterations", 1), int) or c.get("max_iterations", 1) < 1:
+        raise ValueError("max_iterations must be int >=1")
+    if not isinstance(c.get("status_update_interval", 5), int) or c.get("status_update_interval", 5) < 1:
+        raise ValueError("status_update_interval must be int >=1")
+    if "enable_discussion" in c and not isinstance(c["enable_discussion"], bool):
+        raise ValueError("enable_discussion must be bool")
 
 # Backup existing config if present
 if os.path.exists(config_path):
@@ -45,10 +59,13 @@ if os.path.exists(config_path):
         # Merge defaults with existing (existing wins)
         config.update(existing_config)
         print("Existing config merged with defaults.")
+        validate_config(config)
     except json.JSONDecodeError:
         print("Invalid config.json. Using backup/defaults.")
+        validate_config(config)
     except Exception as e:
         print(f"Config read error: {e}. Using backup/defaults.")
+        validate_config(config)
 
 # Write updated config
 with open(config_path, "w") as f:
@@ -91,12 +108,26 @@ summary = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "Auto skill update"
 
 new_entry = f"\n### Version {new_version} ({today})\n- {summary}\n"
 
+# Check for idempotency: if summary already in latest entry, skip
+if matches:
+    last_v_str = max(matches, key=parse_version)
+    last_entry_pos = content.find(f"### Version {last_v_str}")
+    next_entry_pos = content.find("### Version", last_entry_pos + 1)
+    if next_entry_pos == -1:
+        next_entry_pos = len(content)
+    last_entry = content[last_entry_pos:next_entry_pos]
+    if summary in last_entry:
+        print("Summary already in latest changelog entry. Skipping changelog update.")
+        new_entry = ""
+
 # Insert before '## Files'
 files_pos = content.find("## Files")
 if files_pos != -1:
-    content = content[:files_pos] + new_entry + content[files_pos:]
+    if new_entry:
+        content = content[:files_pos] + new_entry + content[files_pos:]
 else:
-    content += new_entry
+    if new_entry:
+        content += new_entry
 
 with open(skill_path, "w") as f:
     f.write(content)
