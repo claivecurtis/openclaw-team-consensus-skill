@@ -46,10 +46,10 @@ Set up Cron for Status Updates (every 5 min)
 Prompt All Config Options (with user confirmation)
   |
   v
-Analyze Task → Auto-Propose Agent Composition (AGENTS.md table, user adjust/confirm)
+Select Agent Composition (mix agent types, e.g., 2 code-agent, 1 other)
   |
   v
-Spawn Reviewers (confirmed composition) --> Collect Feedback (push-based)
+Spawn Reviewers --> Collect Feedback (push-based)
   |                    |
   |<-------------------+
   v
@@ -79,24 +79,13 @@ End
 
 ## Workflow
 
-### Guards
-- **Interactive Context Required for Prompting**: Prompting for config and confirmation must occur in user-facing sessions (e.g., main chat). In non-interactive sub-agent or automated contexts, use auto_select_team defaults and skip manual overrides to avoid hanging.
-- **Test Mode Guard**: If test_mode enabled, simulate entire workflow with mock data, log to TEST.md, and skip all real spawns/cron to prevent costs/resource use.
-- **Consensus Threshold Guard**: Do not proceed to voting if fewer than 2 reviewers provide feedback; fallback to single reviewer approval.
+1. **Set up Cron for Status Updates**: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
 
-1. **Prep (Test Mode Check)**: If test_mode true, skip cron/spawns, sim full flow (mock data), log trace to output/TEST.md style. Else normal.: At the start of skill use, set up a cron job to send status updates every 5 minutes via periodic status messages. Use the complete job object: run `openclaw cron add --name "team-status-<session_id>" --every "5m" --message "Provide a status update on the ongoing Team skill process, including current progress, number of reviewers spawned, feedback collected, etc." --agent "<current_agent_id>" --announce --to "<channel_id>" --session "isolated" --timeout-seconds 30`. If the job object is invalid (e.g., missing name or message), retry with correct parameters.
+2. **Prompt for All Configuration**: Present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
 
-2. **Prompt for All Configuration**: First, list available agents from `agents_list` tool and AGENTS.md efficiency table. Then present all config options on-demand (num_reviewers, enable_discussion, voting_threshold, status_update_interval, etc.) and require user confirmation before proceeding.
+3. **Select Agent Composition**: Allow user to specify the composition of agent types for the team (e.g., 2 code-agent, 1 other-agent), using available agents from `agents_list` with their models from `session_status`. Validate that the total does not exceed max_reviewers and that agents are allowed.
 
-3. **Analyze Task and Propose Agent Composition**: Analyze the task/prompt using AGENTS.md efficiency table and research agents/qualities via tools (e.g., web_search for "best AI models for [task type]" to gather current capabilities and efficiencies):
-- Code/shell/CLI/git/PR: prioritize code-agent
-- General reasoning: grok-fast-reason
-- Quick/light: gem3-flash
-- Heavy analysis: grok-4-full
-
-Propose dict summing to num_reviewers (e.g., {"code-agent":2, "grok-fast-reason":1}). Present: "Proposed team: [dict]. Approve? Adjust? Regenerate?" Validate agents from agents_list, total <= max_reviewers.
-
-4. **Spawning Reviewers**: The agent uses the `subagents` tool to spawn ... Each is tasked with reviewing the provided item according to the task description. If spawning fails, retry up to 2 times. If all retries fail, terminate the team skill activity, notify the user, and remove the cron job.
+4. **Spawning Reviewers**: The agent uses the `subagents` tool to spawn the specified number and types of reviewer sub-agents according to the composition. Each is tasked with reviewing the provided item according to the task description. If spawning fails, retry up to 2 times. If all retries fail, terminate the team skill activity, notify the user, and remove the cron job.
 
 5. **Collecting Feedback**: Feedback is collected from each reviewer as they complete their task (push-based notifications via system messages). If a sub-agent fails to provide feedback within timeout, mark as failed and proceed with available feedback.
 
@@ -110,7 +99,7 @@ Propose dict summing to num_reviewers (e.g., {"code-agent":2, "grok-fast-reason"
 
 ## Configuration
 
-The skill uses a config.json file for default settings, but when invoked, first lists available agents from `agents_list` tool and AGENTS.md efficiency table, then dynamically presents all options on-demand and requires user confirmation before forming the team:
+The skill uses a config.json file for default settings, but when invoked, dynamically presents all options on-demand and requires user confirmation before forming the team:
 
 - num_reviewers: Number of reviewer sub-agents (default: 3, max: 5)
 - enable_discussion: Enable discussion synthesis phase (default: true)
@@ -118,12 +107,9 @@ The skill uses a config.json file for default settings, but when invoked, first 
 - timeout_minutes: Timeout for sub-agent responses (default: 5)
 - max_iterations: Maximum review iterations if consensus fails (default: 1)
 - status_update_interval: Interval in minutes for periodic status updates during skill use (default: 5)
-- agent_composition: Dictionary specifying the number of each agent type (e.g., {"code-agent": 2, "grok-fast-reason": 1}) (auto-proposed; fallback default: {"code-agent": 3}; user override)
-- auto_select_team: Enable automatic task analysis and proposal (default: true)
-- test_mode: Simulate full workflow (mock responses, no subagents/cron/costs; outputs trace like TEST.md) (default: false)
+- agent_composition: Dictionary specifying the number of each agent type (e.g., {"code-agent": 2, "other-agent": 1}) (default: {"code-agent": 3})
 
 Users can provide personalized overrides during prompting to tailor the process.
-* If test_mode, skip spawns/cron; generate/log mock flow per TEST.md (generic for your agents_list/AGENTS.md).
 
 ## Setup Agent Efficiency Cron
 
@@ -145,17 +131,6 @@ This ensures the AGENTS.md table remains current with agent efficiency data.
 
 ## Sub-Agent Composition
 
-### Auto-Selection Logic
-Research agents/qualities via tools (e.g., web_search for current AI model capabilities, efficiencies, and best uses for the task type). Classify task keywords and propose balanced team:
-- **Code/CLI/shell/git/PRs**: code-agent primary (2/3), grok-fast-reason support
-- **General/chat**: grok-fast-reason primary, gem3-flash for speed
-- **Quick/light**: gem3-flash all or primary
-- **Complex/heavy**: grok-4-full primary, others for diversity
-
-Distribute to num_reviewers prioritizing efficiency/cost.
-
-Present proposal, allow adjust.
-
 When using the skill, the agent pulls the list of available agents using the `agents_list` tool and displays them with their default models (queried via `session_status`). The user can specify the composition by assigning numbers to each agent type, e.g., 2 code-agent, 1 other-agent. The total should not exceed max_reviewers.
 
 Refer to AGENTS.md efficiency table for suggestions on best agents for consensus tasks.
@@ -176,18 +151,12 @@ Refer to AGENTS.md efficiency table for suggestions on best agents for consensus
 
 2. To use the skill, the agent follows the workflow steps: sets up cron for status updates, prompts all config options with confirmation, allows specifying agent composition, spawns reviewers per composition, collects feedback, handles discussion/voting, and removes cron at end.
 
-## Invocation Policy
-
-- Explicit "team" / "assemble the team" → Load/follow this SKILL.md workflow.
-
-- Routine/Implicit Consensus: For consensus tasks without explicit "team" mention (e.g., "review this code", "validate output"), use the full Team skill workflow (no sub-spawn of team agents—team only): Load `workspace/skills/openclaw-team-consensus-skill/SKILL.md`, follow precisely, with auto defaults in non-interactive contexts.
-
 ## Examples
 
 **Sample Scenario: Reviewing a Code Snippet**
 
 - User: "Use Team skill to review this Python function for bugs and improvements."
-- Agent prompts configs (e.g. reviewers=3), analyzes task: "Code review task. Proposed: {'code-agent':2, 'grok-fast-reason':1}. Confirm?" → yes; Overall confirm.
+- Agent prompts all options: "Number of reviewers? [3]" → 3; "Enable discussion? [true]" → true; "Status update interval? [5]" → 5; "Agent composition? [code-agent:3]" → 2 code-agent, 1 other-agent; User confirms.
 - Sets up cron for status every 5 min.
 - Spawns 2 code-agent and 1 other-agent reviewers with task: "Review this function: def add(a, b): return a + b  # for bugs and suggestions."
 - Collects feedback (e.g., "No bugs, but add type hints. Rating: 4/5")
@@ -195,16 +164,6 @@ Refer to AGENTS.md efficiency table for suggestions on best agents for consensus
 - Applies changes: Edits function to def add(a: int, b: int) -> int: return a + b
 - Spawns voters: All approve → Consensus reached.
 - Removes cron.
-
-**Example Prompt Sequence (Interactive)**:
-- Agent: "Team skill invoked. Current config: num_reviewers=3, enable_discussion=true, voting_threshold=0.7. Task analysis: Code task. Auto-proposed team: {'code-agent': 2, 'grok-fast-reason': 1}. Override? (yes/no/custom)"
-- User: "Change to 4 reviewers, no discussion."
-- Agent: "Updated: num_reviewers=4, enable_discussion=false. Confirm to proceed? (yes/no)"
-- User: "yes"
-- Proceed to spawning.
-
-**Guard Example (Non-Interactive)**:
-- In sub-agent context: Skip prompts, use auto_select_team=true, proceed with defaults or auto-proposal, log "Non-interactive: using auto-config".
 
 ## Error Handling
 
@@ -308,22 +267,6 @@ To remove the cron job after completion, use `cron.remove` with `jobId` of the c
 - Updated agent efficiency cron to use generic code-agent instead of specific models.
 - Added reference to AGENTS.md efficiency table for agent selection suggestions.
 - Sanitized for general users by removing personalized agent references.
-
-### Version 2.4 (2026-02-20)
-- Added auto_select_team config and enable_agent_reconfig for dynamic team adjustments
-
-### Version 2.5 (2026-02-20)
-- Added test_mode config + TEST.md: dry-run workflow sim for testing/demos (no costs)
-
-### Version 2.6 (2026-02-20)
-- Added guards for interactive contexts, improved examples with prompt sequences, clarified non-interactive fallback.
-
-### Version 2.7 (2026-02-22)
-- Synced agents efficiency table from AGENTS.md, added proxmox and user agents.
-- Updated dynamic composition to read AGENTS.md efficiency table instead of agents_list tool.
-- Emphasized research via tools for agent qualities.
-- Added spawning priority and rule from AGENTS.md.
-
 ## Files
 
 - SKILL.md: This documentation
