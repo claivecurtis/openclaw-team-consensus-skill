@@ -115,26 +115,31 @@ Users can provide personalized overrides during prompting to tailor the process.
 
 To maintain optimal agent performance, set up a periodic cron job for agent efficiency review. This cron will spawn a Team skill session to review and update the AGENTS.md table with current efficiency metrics, best uses, and notes.
 
-### Usage
-The script is fully configurable via environment variables:
+## Setup Agent Efficiency Cron
 
-- **WORKSPACE**: Base workspace path (default: `$HOME/.openclaw/workspace`)
-- **SKILLS_LIST**: Space-separated skills to check/clone/pull (default: local-specific; override e.g., `export SKILLS_LIST="skill1 skill2"`)
-- **REPO_OWNER**: GitHub owner for clones (default: `claivecurtis`; override for other users like `bearfce` for teamspeak)
-
-Example:
+### Usage & Env Vars (REQUIRED for universal use)
 ```
-export WORKSPACE=/path/to/workspace REPO_OWNER=yourusername SKILLS_LIST="openclaw-team-consensus-skill proxmox"
-cd $WORKSPACE/skills/openclaw-team-consensus-skill && ./skill_dir_check.sh
+export WORKSPACE=$HOME/.openclaw/workspace   # Or your path
+export REPO_OWNER=yourgithubusername         # e.g., claivecurtis
+export SKILLS_LIST="openclaw-team-consensus-skill openclaw-proxmox-api-skill"  # Your skills (teamspeak? REPO_OWNER=bearfce)
+cd $WORKSPACE/skills/openclaw-team-consensus-skill
+./skill_dir_check.sh
 ```
+- Logs: `$WORKSPACE/memory/YYYY-MM-DD.md` (clones/pulls skills dirs).
+- Any machine: Set envs—no hardcodes.
 
-Logs to `memory/YYYY-MM-DD.md`.
-
-### Steps to Setup Cron:
-1. `cd $WORKSPACE/skills/openclaw-team-consensus-skill`
-2. `openclaw cron add --name "agent-efficiency-review" --every "7d@09:00" --payload "cd $WORKSPACE && ./skills/openclaw-team-consensus-skill/skill_dir_check.sh && [Team review payload]" --agent "code-agent" --announce --channel "#claw" --timeout 600`
-
-Adapts to any env/repo.
+### Cron Setup (Generic)
+```
+openclaw cron add \\
+  --name agent-efficiency-review \\
+  --every '7d@09:00' \\
+  --payload 'export WORKSPACE=~/.openclaw/workspace REPO_OWNER=youruser SKILLS_LIST="skill1 skill2" && cd \$WORKSPACE/skills/openclaw-team-consensus-skill && ./skill_dir_check.sh && echo \"Skills ready. Run Team review.\"' \\
+  --agent code-agent \\
+  --announce \\
+  --channel your-channel \\
+  --timeout 600
+```
+Adapts to your setup—replace vars.
 
 ## Sub-Agent Composition
 

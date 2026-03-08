@@ -3,23 +3,26 @@
 # Universal skill directory check script
 # Uses environment variables for customization
 
-WORKSPACE=${WORKSPACE:-$HOME/.openclaw/workspace}
+WORKSPACE=${WORKSPACE:?"WORKSPACE env required (e.g., \$HOME/.openclaw/workspace)"}
 SKILLS_DIR=$WORKSPACE/skills
 DATE=$(date +%Y-%m-%d)
 LOG_FILE=$WORKSPACE/memory/$DATE.md
 
-# Default skills to check; can be overridden by SKILLS_LIST env var
-DEFAULT_SKILLS=("openclaw-team-consensus-skill" "openclaw-proxmox-api-skill" "teamspeak")
-SKILLS=(${SKILLS_LIST:-"${DEFAULT_SKILLS[@]}"})
+# Required envs (examples below)
+: "${SKILLS_LIST:?SKILLS_LIST env required (space-separated skill names)}"
+SKILLS=($SKILLS_LIST)
 
-echo "Skill dir check started at $(date)" >> $LOG_FILE
+echo "=== Skill Dir Check ($DATE) ===" >> $LOG_FILE
+echo "WORKSPACE: $WORKSPACE" >> $LOG_FILE
+echo "REPO_OWNER: $REPO_OWNER" >> $LOG_FILE
+echo "SKILLS: ${SKILLS[*]}" >> $LOG_FILE
+echo "Started at $(date)" >> $LOG_FILE
 
 for SKILL in "${SKILLS[@]}"; do
     DIR=$SKILLS_DIR/$SKILL
     if [ ! -d "$DIR" ]; then
         echo "Cloning $SKILL" >> $LOG_FILE
-# Set REPO_OWNER env var (e.g., claivecurtis) or per-skill via custom logic
-        REPO_OWNER=${REPO_OWNER:-claivecurtis}
+: "${REPO_OWNER:?REPO_OWNER env required (e.g., claivecurtis or yourusername)}"
         git clone https://github.com/$REPO_OWNER/$SKILL $DIR >> $LOG_FILE 2>&1
     else
         echo "Pulling $SKILL" >> $LOG_FILE
