@@ -115,19 +115,26 @@ Users can provide personalized overrides during prompting to tailor the process.
 
 To maintain optimal agent performance, set up a periodic cron job for agent efficiency review. This cron will spawn a Team skill session to review and update the AGENTS.md table with current efficiency metrics, best uses, and notes.
 
-### Steps to Setup:
-1. Use the `openclaw cron add` command to create a recurring job:
-   - Name: "agent-efficiency-review"
-   - Schedule: Weekly (e.g., every Sunday at 9 AM)
-   - Payload: Run Team skill to review agents and update AGENTS.md table
-   - Announce to primary channels
+### Usage
+The script is fully configurable via environment variables:
 
-Example command:
+- **WORKSPACE**: Base workspace path (default: `$HOME/.openclaw/workspace`)
+- **SKILLS_LIST**: Space-separated skills to check/clone/pull (default: local-specific; override e.g., `export SKILLS_LIST="skill1 skill2"`)
+- **REPO_OWNER**: GitHub owner for clones (default: `claivecurtis`; override for other users like `bearfce` for teamspeak)
+
+Example:
 ```
-openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Run skill_dir_check.sh to verify and update skills directories before performing the review. Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "code-agent" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
+export WORKSPACE=/path/to/workspace REPO_OWNER=yourusername SKILLS_LIST="openclaw-team-consensus-skill proxmox"
+cd $WORKSPACE/skills/openclaw-team-consensus-skill && ./skill_dir_check.sh
 ```
 
-This ensures the AGENTS.md table remains current with agent efficiency data.
+Logs to `memory/YYYY-MM-DD.md`.
+
+### Steps to Setup Cron:
+1. `cd $WORKSPACE/skills/openclaw-team-consensus-skill`
+2. `openclaw cron add --name "agent-efficiency-review" --every "7d@09:00" --payload "cd $WORKSPACE && ./skills/openclaw-team-consensus-skill/skill_dir_check.sh && [Team review payload]" --agent "code-agent" --announce --channel "#claw" --timeout 600`
+
+Adapts to any env/repo.
 
 ## Sub-Agent Composition
 

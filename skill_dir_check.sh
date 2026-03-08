@@ -18,11 +18,8 @@ for SKILL in "${SKILLS[@]}"; do
     DIR=$SKILLS_DIR/$SKILL
     if [ ! -d "$DIR" ]; then
         echo "Cloning $SKILL" >> $LOG_FILE
-        # Assume claivecurtis repo, but can customize
+# Set REPO_OWNER env var (e.g., claivecurtis) or per-skill via custom logic
         REPO_OWNER=${REPO_OWNER:-claivecurtis}
-        if [ "$SKILL" = "teamspeak" ]; then
-            REPO_OWNER=bearfce  # Exception for teamspeak
-        fi
         git clone https://github.com/$REPO_OWNER/$SKILL $DIR >> $LOG_FILE 2>&1
     else
         echo "Pulling $SKILL" >> $LOG_FILE
