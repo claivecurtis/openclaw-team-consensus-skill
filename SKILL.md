@@ -115,19 +115,31 @@ Users can provide personalized overrides during prompting to tailor the process.
 
 To maintain optimal agent performance, set up a periodic cron job for agent efficiency review. This cron will spawn a Team skill session to review and update the AGENTS.md table with current efficiency metrics, best uses, and notes.
 
-### Steps to Setup:
-1. Use the `openclaw cron add` command to create a recurring job:
-   - Name: "agent-efficiency-review"
-   - Schedule: Weekly (e.g., every Sunday at 9 AM)
-   - Payload: Run Team skill to review agents and update AGENTS.md table
-   - Announce to primary channels
+## Setup Agent Efficiency Cron
 
-Example command:
+### Usage & Env Vars (REQUIRED for universal use)
 ```
-openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Run skill_dir_check.sh to verify and update skills directories before performing the review. Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "code-agent" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
+export WORKSPACE=$HOME/.openclaw/workspace   # Or your path
+export REPO_OWNER=yourgithubusername         # e.g., claivecurtis
+export SKILLS_LIST="openclaw-team-consensus-skill openclaw-proxmox-api-skill"  # Your skills (teamspeak? REPO_OWNER=bearfce)
+cd $WORKSPACE/skills/openclaw-team-consensus-skill
+./skill_dir_check.sh
 ```
+- Logs: `$WORKSPACE/memory/YYYY-MM-DD.md` (clones/pulls skills dirs).
+- Any machine: Set envs—no hardcodes.
 
-This ensures the AGENTS.md table remains current with agent efficiency data.
+### Cron Setup (Generic)
+```
+openclaw cron add \\
+  --name agent-efficiency-review \\
+  --every '7d@09:00' \\
+  --payload 'export WORKSPACE=~/.openclaw/workspace REPO_OWNER=youruser SKILLS_LIST="skill1 skill2" && cd \$WORKSPACE/skills/openclaw-team-consensus-skill && ./skill_dir_check.sh && echo \"Skills ready. Run Team review.\"' \\
+  --agent code-agent \\
+  --announce \\
+  --channel your-channel \\
+  --timeout 600
+```
+Adapts to your setup—replace vars.
 
 ## Sub-Agent Composition
 
