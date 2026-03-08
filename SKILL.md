@@ -124,7 +124,7 @@ To maintain optimal agent performance, set up a periodic cron job for agent effi
 
 Example command:
 ```
-openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "code-agent" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
+openclaw cron add --name "agent-efficiency-review" --every "7d" --message "Run skill_dir_check.sh to verify and update skills directories before performing the review. Use Team skill to review agent efficiency and update AGENTS.md table with summaries/best uses/cost-speed metrics." --agent "code-agent" --announce --to "primary-channels" --session "isolated" --timeout-seconds 600
 ```
 
 This ensures the AGENTS.md table remains current with agent efficiency data.
